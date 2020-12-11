@@ -135,7 +135,7 @@ class Trainer(
         move_metrics_to_cpu: bool = False,
         enable_pl_optimizer: bool = True,
         loader_prefetch_size: int = 8,
-        device_prefetch_size=4
+        device_prefetch_size: int = 4
     ):
         r"""
         Customize every aspect of training via flags
@@ -322,7 +322,9 @@ class Trainer(
         self.evaluation_loop = EvaluationLoop(self)
         self.train_loop = TrainLoop(self)
         self.plugin_connector = PluginConnector(self)
-
+        self.loader_prefetch_size = loader_prefetch_size
+        self.device_prefetch_size = device_prefetch_size
+        
         # training state
         self.weights_summary = weights_summary
         self.model = None
