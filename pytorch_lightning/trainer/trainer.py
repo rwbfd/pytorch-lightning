@@ -134,6 +134,8 @@ class Trainer(
         automatic_optimization: Optional[bool] = None,
         move_metrics_to_cpu: bool = False,
         enable_pl_optimizer: bool = True,
+        loader_prefetch_size: int = 8,
+        device_prefetch_size=4
     ):
         r"""
         Customize every aspect of training via flags
@@ -282,6 +284,19 @@ class Trainer(
             enable_pl_optimizer: If True, each optimizer will be wrapped by
                 `pytorch_lightning.core.optimizer.LightningOptimizer`. It allows Lightning to
                 handle AMP, TPU, accumulated_gradients, etc..
+
+            loader_prefetch_size (int, optional): The max capacity of the queue used by
+                the thread which is reading samples from the `loader`, to be processed by
+                the worker threads which upload data to the devices.
+
+                Default: 8
+
+            device_prefetch_size (int, optional): The max size of the per-device queues,
+                where the worker threads deposit tensors which have already been sent to
+                devices.
+
+                Default: 4
+
         """
         super().__init__()
         self._device_type = DeviceType.CPU
