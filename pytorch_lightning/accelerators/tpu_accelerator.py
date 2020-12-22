@@ -161,7 +161,9 @@ class TPUAccelerator(Accelerator):
 
     def process_dataloader(self, dataloader):
         device = xm.xla_device(self.trainer.tpu_id)
-        dataloader = xla_pl.ParallelLoader(dataloader, [device])
+        dataloader = xla_pl.ParallelLoader(dataloader, [device], fixed_batch_size=True,
+                                           loader_prefetch_size=self.trainer.tpu_loader_prefetch_size,
+                                           device_prefetch_size=self.trainer.tpu_device_prefetch_size)
         dataloader = dataloader.per_device_loader(device)
         return dataloader
 

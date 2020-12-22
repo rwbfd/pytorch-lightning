@@ -134,6 +134,8 @@ class Trainer(
         automatic_optimization: Optional[bool] = None,
         move_metrics_to_cpu: bool = False,
         enable_pl_optimizer: bool = True,
+        tpu_loader_prefetch_size: int = 4,
+        tpu_device_prefetch_size: int = 2
     ):
         r"""
         Customize every aspect of training via flags
@@ -282,6 +284,10 @@ class Trainer(
             enable_pl_optimizer: If True, each optimizer will be wrapped by
                 `pytorch_lightning.core.optimizer.LightningOptimizer`. It allows Lightning to
                 handle AMP, TPU, accumulated_gradients, etc..
+
+            tpu_loader_prefetch_size: The prefetch size for TPU training. Only useful when using TPU.
+
+            tpu_device_prefetch_size: The device prefetch size for TPU training. Only useful when using TPU.
         """
         super().__init__()
         self._device_type = DeviceType.CPU
@@ -307,7 +313,8 @@ class Trainer(
         self.evaluation_loop = EvaluationLoop(self)
         self.train_loop = TrainLoop(self)
         self.plugin_connector = PluginConnector(self)
-
+        self.tpu_loader_prefetch_size = tpu_loader_prefetch_size
+        self.tpu_device_prefetch_size = tpu_device_prefetch_size
         # training state
         self.weights_summary = weights_summary
         self.model = None
