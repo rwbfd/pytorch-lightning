@@ -441,6 +441,9 @@ class Trainer(
         # bookkeeping
         self._state = TrainerState.RUNNING
 
+        # Link model and trainer
+        model.trainer = self
+
         # ----------------------------
         # LINK DATA
         # ----------------------------
@@ -917,3 +920,10 @@ class Trainer(
             Returns: List of all available plugins that are supported as string arguments.
         """
         return PluginConnector.available_plugins()
+
+    def attach_data(self,
+                    model: LightningModule,
+                    train_dataloader: Optional[DataLoader] = None,
+                    val_dataloaders: Optional[Union[DataLoader, List[DataLoader]]] = None,
+                    datamodule: Optional[LightningDataModule] = None,):
+        self.train_loop.trainer.data_connector.attach_data(model, train_dataloader, val_dataloaders, datamodule)

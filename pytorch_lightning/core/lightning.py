@@ -28,6 +28,7 @@ import torch
 from torch import ScriptModule, Tensor
 from torch.nn import Module
 from torch.optim.optimizer import Optimizer
+from torch.utils.data import DataLoader
 
 from pytorch_lightning import _logger as log
 from pytorch_lightning.core.grads import GradInformation
@@ -40,6 +41,7 @@ from pytorch_lightning.utilities import TPU_AVAILABLE, rank_zero_warn
 from pytorch_lightning.utilities.device_dtype_mixin import DeviceDtypeModuleMixin
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
 from pytorch_lightning.utilities.parsing import AttributeDict, collect_init_args, get_init_args
+from pytorch_lightning.core.datamodule import LightningDataModule
 
 if TPU_AVAILABLE:
     import torch_xla.core.xla_model as xm
@@ -110,6 +112,8 @@ class LightningModule(
         self._running_manual_backward = False
         self._current_hook_fx_name = None
         self._current_dataloader_idx = None
+
+        self.trainer = None
 
     def optimizers(self):
         opts = self.trainer.optimizers
@@ -589,7 +593,7 @@ class LightningModule(
 
         Example::
 
-            def training_epoch_end(self, training_step_outputs):
+             training_epoch_end(self,):
                 # do something with all training_step outputs
                 return result
 
@@ -1693,3 +1697,16 @@ class LightningModule(
             return "hparams"
 
         return None
+
+    def get_trainer(self):
+        if self.trainer is None:
+            raise Exception("Have not attached to a trainer;")
+        else:
+            return self.trainer
+
+    def reattach_data(self,
+                      train_dataloader: Optional[DataLoader] = None,
+                      val_dataloaders: Optional[Union[DataLoader, List[DataLoader]]] = None,
+                      datamodule: Optional[LightningDataModule] = None):
+        trainer = self.get_trainer()
+        trainer.attach_data(self, train_dataloader, val_dataloaders, datamodule)
